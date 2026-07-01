@@ -6,35 +6,180 @@
   <title>Hello-Agents 한글 번역본</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown.min.css">
   <style>
-    body { margin: 0; background: #f6f8fa; color: #24292f; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
-    .markdown-body { box-sizing: border-box; min-width: 200px; max-width: 980px; margin: 0 auto; padding: 32px; background: #fff; }
-    .meta { margin: 0 auto 16px; max-width: 980px; font: 14px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif; color: #57606a; }
-    .loading { padding: 24px; font: 16px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif; }
-    @media (max-width: 767px) { .markdown-body { padding: 16px; } .wrap { padding: 12px; } }
+    :root {
+      --bg: #f6f8fa;
+      --panel: #ffffff;
+      --line: #d0d7de;
+      --text: #24292f;
+      --muted: #57606a;
+      --accent: #0969da;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; }
+    .app { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar { border-right: 1px solid var(--line); background: var(--panel); padding: 20px 16px; position: sticky; top: 0; height: 100vh; overflow: auto; }
+    .brand { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+    .sub { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 16px; }
+    .chapter-list { display: flex; flex-direction: column; gap: 6px; }
+    .chapter-link { display: block; text-decoration: none; color: var(--text); padding: 10px 12px; border: 1px solid transparent; border-radius: 10px; font-size: 14px; line-height: 1.4; }
+    .chapter-link:hover { background: #f3f4f6; border-color: #e5e7eb; }
+    .chapter-link.active { background: #eaf2ff; border-color: #b6d0ff; color: #0b57d0; font-weight: 600; }
+    .content-wrap { min-width: 0; }
+    .topbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--line); background: rgba(246,248,250,.9); backdrop-filter: blur(10px); }
+    .topbar h1 { margin: 0; font-size: 18px; }
+    .topbar .meta { color: var(--muted); font-size: 13px; }
+    .nav-buttons { display: flex; gap: 8px; }
+    .btn { appearance: none; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 13px; text-decoration: none; }
+    .btn[disabled] { opacity: .45; cursor: default; }
+    .btn:hover:not([disabled]) { border-color: #9aa4b2; background: #f8fafc; }
+    .article-shell { padding: 24px; }
+    .markdown-body { max-width: 980px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 32px; }
+    .loading, .error { max-width: 980px; margin: 0 auto; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
+    .loading { color: var(--muted); }
+    .error { color: #b42318; }
+    .mobile-select { display: none; width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 14px; background: #fff; }
+    .footer-note { margin-top: 16px; color: var(--muted); font-size: 12px; }
+    @media (max-width: 960px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mobile-select { display: block; }
+      .topbar { display: block; }
+      .nav-buttons { margin-top: 10px; }
+      .article-shell { padding: 12px; }
+      .markdown-body, .loading, .error { padding: 18px; border-radius: 12px; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="meta">Hello-Agents 한글 번역본 | GitHub Pages</div>
-    <article id="content" class="markdown-body"><div class="loading">문서를 불러오는 중...</div></article>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Hello-Agents 한글 번역본</div>
+      <div class="sub">처음에는 챕터 목록만 불러오고, 클릭한 챕터만 렌더링합니다.</div>
+      <nav id="chapter-list" class="chapter-list"></nav>
+      <div class="footer-note">원문 저장소: <a href="https://github.com/datawhalechina/hello-agents" target="_blank" rel="noreferrer">datawhalechina/hello-agents</a></div>
+    </aside>
+    <main class="content-wrap">
+      <div class="topbar">
+        <div>
+          <h1 id="current-title">로딩 중...</h1>
+          <div class="meta">GitHub Pages | 챕터별 지연 로딩</div>
+        </div>
+        <div style="min-width: min(420px, 100%); max-width: 520px;">
+          <select id="mobile-select" class="mobile-select"></select>
+          <div class="nav-buttons">
+            <button id="prev-btn" class="btn">이전 챕터</button>
+            <button id="next-btn" class="btn">다음 챕터</button>
+          </div>
+        </div>
+      </div>
+      <div class="article-shell">
+        <div id="content" class="loading">챕터를 불러오는 중...</div>
+      </div>
+    </main>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
+    const chapters = [
+      { file: '00-Preface-ko.md', title: '서문' },
+      { file: '01-Chapter1-ko.md', title: '1장: 에이전트 입문' },
+      { file: '02-Chapter2-ko.md', title: '2장: 에이전트의 역사' },
+      { file: '03-Chapter3-ko.md', title: '3장: 대규모 언어 모델의 기초' },
+      { file: '04-Chapter4-ko.md', title: '4장: 클래식 에이전트 패러다임 구축' },
+      { file: '05-Chapter5-ko.md', title: '5장: 로우 코드 플랫폼으로 에이전트 구축' },
+      { file: '06-Chapter6-ko.md', title: '6장 프레임워크 개발 실습' },
+      { file: '07-Chapter7-ko.md', title: '7장 에이전트 프레임워크 구축' },
+      { file: '08-Chapter8-ko.md', title: '8장 기억과 인출' },
+      { file: '09-Chapter9-ko.md', title: '9장 컨텍스트 엔지니어링' },
+      { file: '10-Chapter10-ko.md', title: '10장: 에이전트 통신 프로토콜' },
+      { file: '11-Chapter11-ko.md', title: '11장 Agentic-RL' },
+      { file: '12-Chapter12-ko.md', title: '12장: 에이전트 성능 평가' },
+      { file: '13-Chapter13-ko.md', title: '13장 지능형 여행 도우미' },
+      { file: '14-Chapter14-ko.md', title: '14장: 자동화된 심층 연구 에이전트' },
+      { file: '15-Chapter15-ko.md', title: '15장: 사이버 타운 구축' },
+      { file: '16-Chapter16-ko.md', title: '16장: 졸업 프로젝트 - 나만의 다중 에이전트 애플리케이션 구축' }
+    ];
+
     marked.setOptions({ gfm: true, breaks: false, headerIds: true, mangle: false });
-    fetch('./index.md', { cache: 'no-store' })
-      .then(r => {
-        if (!r.ok) throw new Error('Failed to load markdown: ' + r.status);
-        return r.text();
-      })
-      .then(md => {
-        md = md.replace(/^---\n[\s\S]*?\n---\n/, '');
-        document.getElementById('content').innerHTML = marked.parse(md);
-        document.title = 'Hello-Agents 한글 번역본';
-      })
-      .catch(err => {
-        document.getElementById('content').innerHTML = '<div class="loading">문서를 불러오지 못했습니다.<br>' + String(err).replace(/[<>&]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s])) + '</div>';
-      });
+
+    const chapterListEl = document.getElementById('chapter-list');
+    const mobileSelectEl = document.getElementById('mobile-select');
+    const currentTitleEl = document.getElementById('current-title');
+    const contentEl = document.getElementById('content');
+    const prevBtnEl = document.getElementById('prev-btn');
+    const nextBtnEl = document.getElementById('next-btn');
+    const cache = new Map();
+
+    function slugFor(file) {
+      return file.replace(/\.md$/i, '');
+    }
+
+    function getIndexFromHash() {
+      const key = decodeURIComponent(location.hash.replace(/^#/, ''));
+      const found = chapters.findIndex(ch => slugFor(ch.file) === key);
+      return found >= 0 ? found : 0;
+    }
+
+    function renderNav(activeIndex) {
+      chapterListEl.innerHTML = chapters.map((ch, idx) => {
+        const active = idx === activeIndex ? 'active' : '';
+        return `<a class="chapter-link ${active}" href="#${encodeURIComponent(slugFor(ch.file))}" data-index="${idx}">${ch.title}</a>`;
+      }).join('');
+
+      mobileSelectEl.innerHTML = chapters.map((ch, idx) => {
+        const selected = idx === activeIndex ? 'selected' : '';
+        return `<option value="${idx}" ${selected}>${ch.title}</option>`;
+      }).join('');
+
+      prevBtnEl.disabled = activeIndex <= 0;
+      nextBtnEl.disabled = activeIndex >= chapters.length - 1;
+    }
+
+    async function loadChapter(index) {
+      const chapter = chapters[index];
+      if (!chapter) return;
+      renderNav(index);
+      currentTitleEl.textContent = chapter.title;
+      contentEl.className = 'loading';
+      contentEl.innerHTML = '챕터를 불러오는 중...';
+
+      try {
+        let md = cache.get(chapter.file);
+        if (!md) {
+          const res = await fetch(`./${chapter.file}`, { cache: 'force-cache' });
+          if (!res.ok) throw new Error(`문서 로드 실패: ${res.status}`);
+          md = await res.text();
+          md = md.replace(/^---\n[\s\S]*?\n---\n/, '');
+          cache.set(chapter.file, md);
+        }
+        contentEl.className = 'markdown-body';
+        contentEl.innerHTML = marked.parse(md);
+        document.title = `${chapter.title} | Hello-Agents 한글 번역본`;
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } catch (err) {
+        contentEl.className = 'error';
+        contentEl.textContent = '챕터를 불러오지 못했습니다. ' + String(err);
+      }
+    }
+
+    function goToIndex(index) {
+      const chapter = chapters[index];
+      if (!chapter) return;
+      const nextHash = `#${encodeURIComponent(slugFor(chapter.file))}`;
+      if (location.hash === nextHash) {
+        loadChapter(index);
+      } else {
+        location.hash = nextHash;
+      }
+    }
+
+    mobileSelectEl.addEventListener('change', (e) => goToIndex(Number(e.target.value)));
+    prevBtnEl.addEventListener('click', () => goToIndex(getIndexFromHash() - 1));
+    nextBtnEl.addEventListener('click', () => goToIndex(getIndexFromHash() + 1));
+    window.addEventListener('hashchange', () => loadChapter(getIndexFromHash()));
+
+    renderNav(getIndexFromHash());
+    loadChapter(getIndexFromHash());
   </script>
 </body>
 </html>
