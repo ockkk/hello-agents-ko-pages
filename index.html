@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hello-Agents 한글 번역본</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown.min.css">
+  <style>
+    body { margin: 0; background: #f6f8fa; color: #24292f; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
+    .markdown-body { box-sizing: border-box; min-width: 200px; max-width: 980px; margin: 0 auto; padding: 32px; background: #fff; }
+    .meta { margin: 0 auto 16px; max-width: 980px; font: 14px/1.5 -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif; color: #57606a; }
+    .loading { padding: 24px; font: 16px/1.6 -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif; }
+    @media (max-width: 767px) { .markdown-body { padding: 16px; } .wrap { padding: 12px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">Hello-Agents 한글 번역본 | GitHub Pages</div>
+    <article id="content" class="markdown-body"><div class="loading">문서를 불러오는 중...</div></article>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    marked.setOptions({ gfm: true, breaks: false, headerIds: true, mangle: false });
+    fetch('./index.md', { cache: 'no-store' })
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to load markdown: ' + r.status);
+        return r.text();
+      })
+      .then(md => {
+        document.getElementById('content').innerHTML = marked.parse(md);
+        document.title = 'Hello-Agents 한글 번역본';
+      })
+      .catch(err => {
+        document.getElementById('content').innerHTML = '<div class="loading">문서를 불러오지 못했습니다.<br>' + String(err).replace(/[<>&]/g, s => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[s])) + '</div>';
+      });
+  </script>
+</body>
+</html>
