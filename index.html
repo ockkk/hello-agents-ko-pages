@@ -28,6 +28,7 @@
         return r.text();
       })
       .then(md => {
+        md = md.replace(/^---\n[\s\S]*?\n---\n/, '');
         document.getElementById('content').innerHTML = marked.parse(md);
         document.title = 'Hello-Agents 한글 번역본';
       })
